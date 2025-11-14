@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Flame, HeartPulse, ShieldAlert, Frown, Siren, MapPin, Upload } from 'lucide-react';
+import { Flame, HeartPulse, ShieldAlert, Frown, Siren, MapPin } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,7 +31,6 @@ const reportFormSchema = z.object({
   }),
   location: z.string().min(5, { message: 'Location must be at least 5 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
-  media: z.any(),
 });
 
 type ReportFormValues = z.infer<typeof reportFormSchema>;
@@ -110,12 +109,14 @@ export default function ReportIncidentPage() {
                         className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
                       >
                         {incidentTypes.map((type) => (
-                          <div key={type.name}>
-                            <RadioGroupItem
-                              value={type.name}
-                              id={type.name}
-                              className="sr-only"
-                            />
+                          <FormItem key={type.name}>
+                            <FormControl>
+                              <RadioGroupItem
+                                value={type.name}
+                                id={type.name}
+                                className="sr-only"
+                              />
+                            </FormControl>
                             <Label
                               htmlFor={type.name}
                               className={`flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors
@@ -124,7 +125,7 @@ export default function ReportIncidentPage() {
                               <type.icon className={`h-8 w-8 mb-2 ${type.color}`} />
                               <span>{type.name}</span>
                             </Label>
-                          </div>
+                          </FormItem>
                         ))}
                       </RadioGroup>
                     </FormControl>
@@ -172,22 +173,6 @@ export default function ReportIncidentPage() {
                         className="resize-y min-h-[120px]"
                         {...field}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="media"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Upload Media (Optional)</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Upload className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                        <Input type="file" className="pl-10" {...field} />
-                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
