@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/icons";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const loginImage = PlaceHolderImages.find(p => p.id === "login-hero");
 
   return (
@@ -16,22 +16,26 @@ export default function LoginPage() {
         <div className="mx-auto grid w-[350px] gap-6">
           <div className="grid gap-2 text-center">
             <div className="flex justify-center items-center gap-2">
-                <Logo className="h-8 w-8 text-primary" />
-                <h1 className="text-3xl font-bold font-headline">SERS</h1>
+              <Logo className="h-8 w-8 text-primary" />
+              <h1 className="text-3xl font-bold font-headline">SERS</h1>
             </div>
             <p className="text-balance text-muted-foreground">
-              Student Emergency Response Solution
+              Create your Student Emergency Response account
             </p>
           </div>
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">Login</CardTitle>
+              <CardTitle className="text-2xl">Sign Up</CardTitle>
               <CardDescription>
-                Enter your student email below to login to your account
+                Enter your information to create an account
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="full-name">Full Name</Label>
+                  <Input id="full-name" placeholder="Jane Doe" required />
+                </div>
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -42,27 +46,16 @@ export default function LoginPage() {
                   />
                 </div>
                 <div className="grid gap-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
-                    <Link
-                      href="#"
-                      className="ml-auto inline-block text-sm underline"
-                    >
-                      Forgot your password?
-                    </Link>
-                  </div>
+                  <Label htmlFor="password">Password</Label>
                   <Input id="password" type="password" required />
                 </div>
-                <Button asChild type="submit" className="w-full">
-                  <Link href="/dashboard">Login</Link>
-                </Button>
-                 <Button asChild variant="outline" className="w-full">
-                  <Link href="/admin">Admin Login</Link>
+                <Button type="submit" className="w-full">
+                  Create an account
                 </Button>
                 <div className="mt-4 text-center text-sm">
-                  Don&apos;t have an account?{" "}
-                  <Link href="/register" className="underline">
-                    Sign up
+                  Already have an account?{" "}
+                  <Link href="/" className="underline">
+                    Login
                   </Link>
                 </div>
               </div>
@@ -70,7 +63,7 @@ export default function LoginPage() {
           </Card>
         </div>
       </div>
-      <div className="hidden bg-muted lg:block relative">
+       <div className="hidden bg-muted lg:block relative">
         {loginImage && (
           <Image
             src={loginImage.imageUrl}
