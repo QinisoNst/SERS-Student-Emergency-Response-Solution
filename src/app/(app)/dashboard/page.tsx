@@ -16,7 +16,7 @@ const incidentTypes = [
   { name: 'Medical', icon: HeartPulse, color: 'text-blue-500', phoneNumber: '013 002 0003' },
   { name: 'GBV', icon: ShieldAlert, color: 'text-purple-500', phoneNumber: '013 002 0006' },
   { name: 'Bullying', icon: Frown, color: 'text-yellow-500', phoneNumber: '013 002 0007' },
-  { name: 'Crime', icon: Siren, color: 'text-orange-500', phoneNumber: '10111' },
+  { name: 'Crime', icon: Siren, color: 'text-orange-500', phoneNumber: '013 002 0010' },
 ];
 
 interface IncidentReport {
