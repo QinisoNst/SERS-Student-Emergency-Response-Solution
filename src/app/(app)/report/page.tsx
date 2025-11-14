@@ -110,18 +110,21 @@ export default function ReportIncidentPage() {
                         className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
                       >
                         {incidentTypes.map((type) => (
-                          <FormItem key={type.name}>
-                            <FormControl>
-                              <RadioGroupItem value={type.name} className="sr-only" />
-                            </FormControl>
+                          <div key={type.name}>
+                            <RadioGroupItem
+                              value={type.name}
+                              id={type.name}
+                              className="sr-only"
+                            />
                             <Label
+                              htmlFor={type.name}
                               className={`flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors
                                 ${field.value === type.name ? 'border-primary' : ''}`}
                             >
                               <type.icon className={`h-8 w-8 mb-2 ${type.color}`} />
                               <span>{type.name}</span>
                             </Label>
-                          </FormItem>
+                          </div>
                         ))}
                       </RadioGroup>
                     </FormControl>
