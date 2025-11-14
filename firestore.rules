@@ -59,8 +59,13 @@ service cloud.firestore {
       // Allow any signed-in user to create a report, as long as they set their own UID correctly.
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid && request.resource.data.id == reportId;
 
-      // Allow read, update, and delete only if the user is signed in and is the owner of the document.
-      allow get, update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      // Allow read for any signed-in user (for admins to view details).
+      // In production, this should be restricted to users with an 'admin' role.
+      allow get: if isSignedIn();
+
+      // Allow update and delete only if the user is the owner.
+      // Admin update logic is handled through the app interface, not direct rule changes here.
+      allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
       
       // Allow list operations for any signed in user (for admin functionality).
       // In a production app, this should be restricted to admin users.
