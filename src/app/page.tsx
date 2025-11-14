@@ -14,6 +14,10 @@ import { FormEvent, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { doc } from "firebase/firestore";
 
+interface UserProfile {
+  userType: 'student' | 'admin';
+  contactPhoneNumber?: string;
+}
 
 export default function LoginPage() {
   const loginImage = PlaceHolderImages.find(p => p.id === "login-hero");
@@ -27,14 +31,19 @@ export default function LoginPage() {
     return doc(firestore, 'users', auth.currentUser.uid, 'profile', auth.currentUser.uid);
   }, [auth.currentUser, firestore]);
   
-  const { data: userProfile } = useDoc<{ userType: string }>(userProfileRef);
+  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
 
   useEffect(() => {
     if (userProfile) {
       if (userProfile.userType === 'admin') {
         router.push('/admin');
-      } else {
-        router.push('/dashboard');
+      } else if (userProfile.userType === 'student') {
+        // Redirect to profile setup if phone number is missing
+        if (!userProfile.contactPhoneNumber) {
+          router.push('/profile?setup=true');
+        } else {
+          router.push('/dashboard');
+        }
       }
     }
   }, [userProfile, router]);

@@ -4,12 +4,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { doc } from 'firebase/firestore';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-import { UserCircle } from 'lucide-react';
+import { UserCircle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/PageHeader';
 import { useUser, useFirestore, useMemoFirebase, useDoc } from '@/firebase';
@@ -39,6 +41,10 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const { user } = useUser();
   const firestore = useFirestore();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const isSetup = searchParams.get('setup') === 'true';
+
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user || !firestore) return null;
@@ -91,6 +97,11 @@ export default function ProfilePage() {
       title: 'Profile Updated',
       description: 'Your information has been saved successfully.',
     });
+
+    // If in setup mode, redirect to dashboard after saving.
+    if(isSetup) {
+      router.push('/dashboard');
+    }
   }
 
   return (
@@ -99,6 +110,15 @@ export default function ProfilePage() {
         title="Your Profile"
         description="Keep your information up-to-date for faster emergency response."
       />
+      {isSetup && (
+        <Alert className="mb-6">
+          <Info className="h-4 w-4" />
+          <AlertTitle>Complete Your Profile</AlertTitle>
+          <AlertDescription>
+            Welcome! Please complete your profile before proceeding to the dashboard. This ensures we have the necessary information in case of an emergency.
+          </AlertDescription>
+        </Alert>
+      )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <Card>
