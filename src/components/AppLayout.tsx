@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import {
   AlertTriangle,
@@ -57,6 +57,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const firestore = useFirestore();
   const auth = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isSetup = searchParams.get('setup') === 'true';
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -137,7 +139,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       </Sidebar>
       <SidebarInset>
         <header className="flex h-14 items-center gap-4 border-b bg-background/50 backdrop-blur-sm px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
-          <SidebarTrigger />
+          {!isSetup && <SidebarTrigger />}
           <div className="w-full flex-1">
              <h1 className="text-xl font-brand font-bold">SERS: Student Emergency Response Solution</h1>
           </div>
