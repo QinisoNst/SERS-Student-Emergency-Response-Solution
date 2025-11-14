@@ -1,0 +1,138 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a student's profile within the SERS application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "contactName": {
+          "type": "string",
+          "description": "The student's full name."
+        },
+        "contactPhoneNumber": {
+          "type": "string",
+          "description": "The student's primary contact phone number."
+        },
+        "emergencyContactName": {
+          "type": "string",
+          "description": "Name of the emergency contact."
+        },
+        "emergencyContactPhoneNumber": {
+          "type": "string",
+          "description": "Phone number of the emergency contact."
+        },
+        "medicalInformation": {
+          "type": "string",
+          "description": "Any relevant medical information the student wishes to share."
+        }
+      },
+      "required": [
+        "id",
+        "contactName",
+        "contactPhoneNumber",
+        "emergencyContactName",
+        "emergencyContactPhoneNumber"
+      ]
+    },
+    "IncidentReport": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "IncidentReport",
+      "type": "object",
+      "description": "Represents a reported incident within the SERS application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the IncidentReport entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N IncidentReport)"
+        },
+        "incidentType": {
+          "type": "string",
+          "description": "Type of incident reported (Fire, Medical, GBV, Bullying, Crime)."
+        },
+        "locationDetails": {
+          "type": "string",
+          "description": "Detailed location of the incident."
+        },
+        "detailedDescription": {
+          "type": "string",
+          "description": "A detailed description of the incident."
+        },
+        "reportDateTime": {
+          "type": "string",
+          "description": "Date and time the incident was reported.",
+          "format": "date-time"
+        },
+        "mediaUrls": {
+          "type": "array",
+          "description": "List of URLs pointing to media files uploaded with the report.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "incidentType",
+        "locationDetails",
+        "detailedDescription",
+        "reportDateTime"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}/profile",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile data. Path-based ownership ensures only the authenticated user can access their own profile.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/incidentReports/{reportId}",
+        "definition": {
+          "entityName": "IncidentReport",
+          "schema": {
+            "$ref": "#/backend/entities/IncidentReport"
+          },
+          "description": "Stores incident reports submitted by users. Path-based ownership ensures only the authenticated user can access their own reports.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "reportId",
+              "description": "The unique identifier of the incident report."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging, following the principles of Authorization Independence, Clarity of Intent, DBAC, and QAPs. \n\nUser profiles are stored in a private collection `/users/{userId}/profile` to ensure only the authenticated user can access their own profile data. Incident reports are stored as subcollections under each user's document (`/users/{userId}/incidentReports/{reportId}`), clearly establishing ownership. This design prioritizes path-based ownership, enhancing security rule simplicity and efficiency. There is no denormalization required, since Authorization Independence is achieved with path-based ownership.\n\nStructural segregation is achieved by separating user profiles and incident reports into distinct collections and subcollections, respectively. This allows for homogeneous security postures: `/users/{userId}/profile` for private user data and `/users/{userId}/incidentReports/{reportId}` for user-owned incident reports.\n\nThe structure is designed to support secure `list` operations (QAPs) by leveraging path-based ownership. Security rules can easily filter based on `request.auth.uid` to ensure users can only access their own incident reports. Global roles or custom claims are not used, adhering to DBAC principles."
+  }
+}
