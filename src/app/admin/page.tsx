@@ -76,7 +76,7 @@ export default function AdminDashboardPage() {
               <TableRow>
                 <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="hidden md:table-cell">Student</TableHead>
+                <TableHead className="hidden md:table-cell">Name</TableHead>
                 <TableHead className="hidden md:table-cell">Reported</TableHead>
                 <TableHead>
                   Action
