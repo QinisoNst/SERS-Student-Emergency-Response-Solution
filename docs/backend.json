@@ -14,6 +14,10 @@
           "type": "string",
           "description": "The student's full name."
         },
+        "studentNumber": {
+          "type": "string",
+          "description": "The student's unique identification number."
+        },
         "contactPhoneNumber": {
           "type": "string",
           "description": "The student's primary contact phone number."

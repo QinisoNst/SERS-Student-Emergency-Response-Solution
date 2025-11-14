@@ -42,6 +42,7 @@ export default function RegisterPage() {
     const fullName = event.currentTarget.fullName.value;
     const email = event.currentTarget.email.value;
     const password = event.currentTarget.password.value;
+    const studentNumber = (event.currentTarget.elements.namedItem('studentNumber') as HTMLInputElement)?.value;
 
     if (!userType) {
       toast({
@@ -62,7 +63,7 @@ export default function RegisterPage() {
 
       // Create user profile in Firestore
       const userProfileRef = doc(firestore, 'users', user.uid, 'profile', user.uid);
-      const userProfileData = {
+      const userProfileData: any = {
         id: user.uid,
         contactName: fullName,
         userType: userType,
@@ -71,6 +72,10 @@ export default function RegisterPage() {
         emergencyContactPhoneNumber: '',
         medicalInformation: '',
       };
+
+      if (userType === 'student' && studentNumber) {
+        userProfileData.studentNumber = studentNumber;
+      }
       
       setDocumentNonBlocking(userProfileRef, userProfileData, { merge: true });
 
@@ -147,6 +152,12 @@ export default function RegisterPage() {
                       </SelectContent>
                     </Select>
                   </div>
+                  {userType === 'student' && (
+                    <div className="grid gap-2">
+                      <Label htmlFor="studentNumber">Student Number</Label>
+                      <Input id="studentNumber" name="studentNumber" placeholder="S12345" required />
+                    </div>
+                  )}
                   <Button type="submit" className="w-full">
                     Create an account
                   </Button>
