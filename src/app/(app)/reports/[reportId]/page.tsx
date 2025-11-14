@@ -4,7 +4,7 @@
 import { useParams } from 'next/navigation';
 import { doc } from 'firebase/firestore';
 import { format } from 'date-fns';
-import { Calendar, FileText, MapPin, Tag } from 'lucide-react';
+import { Calendar, FileText, MapPin, User } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -66,12 +66,19 @@ export default function ReportDetailPage() {
                 </CardTitle>
             )}
            <CardDescription>
-            {isLoading ? <Skeleton className="h-4 w-1/2 mt-1" /> : `Reported by ${report?.userName}`}
+            {isLoading ? <Skeleton className="h-4 w-1/2 mt-1" /> : `Report ID: ${reportId}`}
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6">
             {isLoading ? (
                 <div className="space-y-4">
+                    <div className="flex items-start gap-4">
+                        <User className="h-5 w-5 text-muted-foreground mt-1" />
+                        <div className="space-y-1">
+                            <Skeleton className="h-5 w-[150px]" />
+                            <Skeleton className="h-4 w-[100px]" />
+                        </div>
+                    </div>
                     <div className="flex items-start gap-4">
                         <Calendar className="h-5 w-5 text-muted-foreground mt-1" />
                         <div className="space-y-1">
@@ -96,6 +103,15 @@ export default function ReportDetailPage() {
                 </div>
             ) : report ? (
                 <>
+                    <div className="grid gap-2">
+                        <div className="flex items-center gap-3">
+                            <User className="h-5 w-5 text-muted-foreground"/>
+                            <h3 className="text-lg font-semibold">Reported By</h3>
+                        </div>
+                        <p className="ml-8 text-muted-foreground">
+                            {report.userName}
+                        </p>
+                    </div>
                     <div className="grid gap-2">
                         <div className="flex items-center gap-3">
                             <Calendar className="h-5 w-5 text-muted-foreground"/>
