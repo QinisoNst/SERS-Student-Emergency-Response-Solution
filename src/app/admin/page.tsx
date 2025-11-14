@@ -78,7 +78,7 @@ export default function AdminDashboardPage() {
                 <TableHead className="hidden md:table-cell">Student</TableHead>
                 <TableHead className="hidden md:table-cell">Reported</TableHead>
                 <TableHead>
-                  <span className="sr-only">Actions</span>
+                  Action
                 </TableHead>
               </TableRow>
             </TableHeader>
