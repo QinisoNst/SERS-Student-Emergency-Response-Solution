@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   Bell,
   LayoutDashboard,
+  ListChecks,
   LogOut,
   Settings,
   User,
@@ -40,6 +41,7 @@ import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/report', icon: AlertTriangle, label: 'Report Incident' },
+  { href: '/reports', icon: ListChecks, label: 'My Reports' },
   { href: '/profile', icon: User, label: 'Profile' },
 ];
 
