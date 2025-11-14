@@ -2,21 +2,14 @@
 
 import { collection, query, where } from 'firebase/firestore';
 import { formatDistanceToNow } from 'date-fns';
-import { MoreHorizontal } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageHeader } from '@/components/PageHeader';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import Link from 'next/link';
 
 interface IncidentReport {
   id: string;
@@ -91,18 +84,9 @@ export default function AllReportsPage() {
                     </Badge>
                   </TableCell>
                    <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>View Report</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Button asChild variant="outline" size="sm">
+                      <Link href={`/reports/${incident.id}`}>View</Link>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
