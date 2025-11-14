@@ -123,7 +123,7 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Know What to Report</CardTitle>
+            <CardTitle>Campus Hotlines</CardTitle>
             <CardDescription>
               Familiarize yourself with the types of incidents you can report and the numbers to call.
             </CardDescription>
