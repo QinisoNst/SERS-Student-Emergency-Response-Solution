@@ -1,7 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { AlertTriangle, ArrowRight, Frown, HeartPulse, ShieldAlert, Siren, Flame, Phone } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowRight,
+  Frown,
+  HeartPulse,
+  ShieldAlert,
+  Siren,
+  Flame,
+  Phone,
+  HelpCircle,
+  ShieldCheck,
+} from 'lucide-react';
 import { collection, query, where } from 'firebase/firestore';
 
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +29,13 @@ const incidentTypes = [
   { name: 'Bullying', icon: Frown, color: 'text-yellow-500', phoneNumber: '013 002 0007' },
   { name: 'Crime', icon: Siren, color: 'text-orange-500', phoneNumber: '013 002 0010' },
 ];
+
+const publicHotlines = [
+  { name: 'Nationwide Emergency', icon: Siren, color: 'text-red-500', phoneNumber: '10177' },
+  { name: 'SAPS', icon: ShieldCheck, color: 'text-blue-500', phoneNumber: '10111' },
+  { name: 'GBV Command Centre', icon: ShieldAlert, color: 'text-purple-500', phoneNumber: '0800 428 428' },
+];
+
 
 interface IncidentReport {
   id: string;
@@ -121,32 +139,60 @@ export default function DashboardPage() {
             </Table>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Campus Hotlines</CardTitle>
-            <CardDescription>
-              Familiarize yourself with the types of incidents you can report and the numbers to call.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            {incidentTypes.map((type) => (
-              <div key={type.name} className="flex items-center justify-between gap-4 p-2 rounded-lg bg-muted/50">
-                <div className="flex items-center gap-4">
-                  <type.icon className={`h-6 w-6 ${type.color}`} />
-                  <p className="text-sm font-medium leading-none">
-                    {type.name}
-                  </p>
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Campus Hotlines</CardTitle>
+              <CardDescription>
+                Direct numbers for on-campus support.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+              {incidentTypes.map((type) => (
+                <div key={type.name} className="flex items-center justify-between gap-4 p-2 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-4">
+                    <type.icon className={`h-6 w-6 ${type.color}`} />
+                    <p className="text-sm font-medium leading-none">
+                      {type.name}
+                    </p>
+                  </div>
+                  <Button asChild variant="outline" size="sm">
+                    <a href={`tel:${type.phoneNumber}`}>
+                        <Phone className="mr-2 h-4 w-4" />
+                        Call {type.phoneNumber}
+                    </a>
+                  </Button>
                 </div>
-                <Button asChild variant="outline" size="sm">
-                  <a href={`tel:${type.phoneNumber}`}>
-                      <Phone className="mr-2 h-4 w-4" />
-                      Call {type.phoneNumber}
-                  </a>
-                </Button>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+              ))}
+            </CardContent>
+          </Card>
+           <Card>
+            <CardHeader>
+              <CardTitle>Public Hotlines</CardTitle>
+              <CardDescription>
+                Nationwide emergency and support numbers.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+              {publicHotlines.map((type) => (
+                <div key={type.name} className="flex items-center justify-between gap-4 p-2 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-4">
+                    <type.icon className={`h-6 w-6 ${type.color}`} />
+                    <p className="text-sm font-medium leading-none">
+                      {type.name}
+                    </p>
+                  </div>
+                  <Button asChild variant="outline" size="sm">
+                    <a href={`tel:${type.phoneNumber}`}>
+                        <Phone className="mr-2 h-4 w-4" />
+                        Call {type.phoneNumber}
+                    </a>
+                  </Button>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
