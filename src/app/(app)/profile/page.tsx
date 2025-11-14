@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { doc } from 'firebase/firestore';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -104,10 +104,7 @@ export default function ProfilePage() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src={user?.photoURL || "https://picsum.photos/seed/user-avatar/100/100"} alt="@student" />
-                  <AvatarFallback>{userProfile?.contactName?.charAt(0) || 'U'}</AvatarFallback>
-                </Avatar>
+                <UserCircle className="h-16 w-16 text-muted-foreground" />
                 <div>
                   <CardTitle className="text-2xl">Personal Information</CardTitle>
                   <CardDescription>This information helps us identify you correctly.</CardDescription>
