@@ -4,12 +4,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Bell,
-  Home,
   LogOut,
   Settings,
   Siren,
   Users,
 } from 'lucide-react';
+import { doc } from 'firebase/firestore';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -34,6 +34,8 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Logo } from './icons';
+import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+
 
 const navItems = [
   { href: '/admin', icon: Siren, label: 'Incidents' },
@@ -41,8 +43,22 @@ const navItems = [
   { href: '#', icon: Settings, label: 'Settings' },
 ];
 
+interface UserProfile {
+  contactName?: string;
+}
+
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return doc(firestore, 'users', user.uid, 'profile', user.uid);
+  }, [user, firestore]);
+
+  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
+
 
   return (
     <SidebarProvider>
@@ -78,11 +94,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <DropdownMenuTrigger asChild>
               <div className="flex items-center gap-3 cursor-pointer p-2 rounded-md hover:bg-sidebar-accent transition-colors">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src="https://picsum.photos/seed/admin-avatar/100/100" alt="@admin" />
-                  <AvatarFallback>A</AvatarFallback>
+                  <AvatarImage src={user?.photoURL || "https://picsum.photos/seed/admin-avatar/100/100"} alt="@admin" />
+                  <AvatarFallback>{userProfile?.contactName?.charAt(0) || 'A'}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col text-left group-data-[collapsible=icon]:hidden">
-                    <span className="text-sm font-medium">Admin User</span>
+                    <span className="text-sm font-medium">{userProfile?.contactName || 'Admin User'}</span>
                     <span className="text-xs text-muted-foreground">Campus Safety</span>
                 </div>
               </div>

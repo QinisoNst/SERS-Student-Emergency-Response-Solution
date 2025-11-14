@@ -5,12 +5,12 @@ import { usePathname } from 'next/navigation';
 import {
   AlertTriangle,
   Bell,
-  Home,
   LayoutDashboard,
   LogOut,
   Settings,
   User,
 } from 'lucide-react';
+import { doc } from 'firebase/firestore';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -35,6 +35,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Logo } from './icons';
+import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -42,8 +43,22 @@ const navItems = [
   { href: '/profile', icon: User, label: 'Profile' },
 ];
 
+interface UserProfile {
+  contactName?: string;
+  studentNumber?: string;
+}
+
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return doc(firestore, 'users', user.uid, 'profile', user.uid);
+  }, [user, firestore]);
+
+  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
 
   return (
     <SidebarProvider>
@@ -79,12 +94,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <DropdownMenuTrigger asChild>
               <div className="flex items-center gap-3 cursor-pointer p-2 rounded-md hover:bg-sidebar-accent transition-colors">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src="https://picsum.photos/seed/user-avatar/100/100" alt="@student" />
-                  <AvatarFallback>S</AvatarFallback>
+                  <AvatarImage src={user?.photoURL || "https://picsum.photos/seed/user-avatar/100/100"} alt="@student" />
+                  <AvatarFallback>{userProfile?.contactName?.charAt(0) || 'S'}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col text-left group-data-[collapsible=icon]:hidden">
-                    <span className="text-sm font-medium">Jane Doe</span>
-                    <span className="text-xs text-muted-foreground">S54321</span>
+                    <span className="text-sm font-medium">{userProfile?.contactName || 'Student'}</span>
+                    <span className="text-xs text-muted-foreground">{userProfile?.studentNumber || ''}</span>
                 </div>
               </div>
             </DropdownMenuTrigger>
