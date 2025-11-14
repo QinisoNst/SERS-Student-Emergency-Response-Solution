@@ -16,19 +16,40 @@ import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/icons';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useAuth } from '@/firebase';
-import { initiateEmailSignUp } from '@/firebase/non-blocking-login';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
 
 export default function RegisterPage() {
   const loginImage = PlaceHolderImages.find((p) => p.id === 'login-hero');
   const router = useRouter();
   const auth = useAuth();
+  const { toast } = useToast();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const email = event.currentTarget.email.value;
     const password = event.currentTarget.password.value;
-    initiateEmailSignUp(auth, email, password);
-    router.push('/');
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      toast({
+        title: "Account Created",
+        description: "You have been successfully registered. Please log in.",
+      })
+      router.push('/');
+    } catch (error: any) {
+      console.error(error);
+      let errorMessage = "An unknown error occurred.";
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'This email is already registered. Please log in.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'The password is too weak. Please choose a stronger password.';
+      }
+      toast({
+        variant: "destructive",
+        title: "Registration Failed",
+        description: errorMessage,
+      });
+    }
   };
 
   return (

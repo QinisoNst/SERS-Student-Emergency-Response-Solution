@@ -9,21 +9,33 @@ import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/icons";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useAuth } from "@/firebase";
-import { initiateEmailSignIn } from "@/firebase/non-blocking-login";
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { FormEvent } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 
 export default function LoginPage() {
   const loginImage = PlaceHolderImages.find(p => p.id === "login-hero");
   const auth = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
 
-  const handleLogin = (event: FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const email = event.currentTarget.email.value;
     const password = event.currentTarget.password.value;
-    initiateEmailSignIn(auth, email, password);
-    router.push('/dashboard');
+    
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      router.push('/dashboard');
+    } catch (error: any) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: "Invalid email or password. Please try again.",
+      });
+    }
   };
 
   return (
