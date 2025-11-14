@@ -1,5 +1,6 @@
 'use client';
 import { AppLayout } from '@/components/AppLayout';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import { FirebaseClientProvider } from '@/firebase';
 
 export default function AuthenticatedLayout({
@@ -9,7 +10,9 @@ export default function AuthenticatedLayout({
 }) {
   return (
     <FirebaseClientProvider>
-      <AppLayout>{children}</AppLayout>
+      <SidebarProvider>
+        <AppLayout>{children}</AppLayout>
+      </SidebarProvider>
     </FirebaseClientProvider>
   );
 }

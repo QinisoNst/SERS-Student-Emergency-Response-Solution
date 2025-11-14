@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { doc } from 'firebase/firestore';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 
 import { UserCircle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/PageHeader';
 import { useUser, useFirestore, useMemoFirebase, useDoc } from '@/firebase';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-import { useEffect } from 'react';
+import { useSidebar } from '@/components/ui/sidebar';
 
 const profileFormSchema = z.object({
   contactName: z.string().min(2, { message: 'Full name must be at least 2 characters.' }),
@@ -43,6 +44,7 @@ export default function ProfilePage() {
   const firestore = useFirestore();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { setOpen } = useSidebar();
   const isSetup = searchParams.get('setup') === 'true';
 
 
@@ -97,6 +99,8 @@ export default function ProfilePage() {
       title: 'Profile Updated',
       description: 'Your information has been saved successfully.',
     });
+
+    setOpen(true);
 
     // If in setup mode, redirect to dashboard after saving.
     if(isSetup) {
