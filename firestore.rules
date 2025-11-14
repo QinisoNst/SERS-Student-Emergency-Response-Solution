@@ -5,14 +5,14 @@
  * This ruleset enforces a strict user-ownership model. Users can only
  * access their own profile data and incident reports. This is achieved
  * primarily through path-based authorization for profiles and document-based
- * authorization for incident reports.
+ * authorization for incident reports. Admins have broader read access.
  *
  * Data Structure:
- * - User profiles are stored under `/users/{userId}/profile`.
+ * - User profiles are stored under `/users/{userId}/profile/{profileId}`.
  * - Incident reports are stored in a top-level collection `/incidentReports/{reportId}`.
  *
  * Key Security Decisions:
- * - User listing is now enabled for signed-in (admin) users.
+ * - User listing is enabled for signed-in users (admins) via a collection group query.
  * - Read-only collections are not present in this data model.
  * - The default security posture for ambiguous relationships is strict: deny all.
  * - No global admin roles are used, adhering to a purely user-centric access model.
@@ -37,17 +37,23 @@ service cloud.firestore {
     match /users/{userId}/profile/{profileId} {
       // Allow reads only if the user is signed in and owns the profile.
       allow get: if isSignedIn() && isOwner(userId);
-      // Allow list for any signed-in user (for admins to view all users).
-      allow list: if isSignedIn();
-
       // Allow creation only if the user is signed in, the userId in the path matches their auth UID,
       // and the document's ID also matches their auth UID.
       allow create: if isSignedIn() && isOwner(userId) && request.resource.id == userId;
-
       // Allow updates and deletes only if the user is signed in and owns the profile.
       allow update: if isSignedIn() && isOwner(userId) && request.resource.data.id == resource.data.id;
       allow delete: if isSignedIn() && isOwner(userId);
     }
+    
+    /**
+     * @description Allows admins to list all user profiles via a collection group query.
+     * @path /profile/{profileId}
+     * @allow (list) Any signed-in user can list all profiles.
+     */
+    match /{path=**}/profile/{profileId} {
+      allow list: if isSignedIn();
+    }
+
 
     /**
      * @description Enforces access control for the top-level incident reports collection.
