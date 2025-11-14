@@ -59,9 +59,7 @@ export default function AllReportsPage() {
                 <TableHead>Location</TableHead>
                 <TableHead className="hidden md:table-cell">Reported</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
+                <TableHead className="text-right">View</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
