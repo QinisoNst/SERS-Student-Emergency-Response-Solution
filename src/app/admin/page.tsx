@@ -74,11 +74,11 @@ export default function AdminDashboardPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="hidden sm:table-cell">Type</TableHead>
+                <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="hidden sm:table-cell">Name</TableHead>
-                <TableHead className="hidden md:table-cell">Student Number</TableHead>
-                <TableHead className="hidden md:table-cell">Reported</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Student Number</TableHead>
+                <TableHead>Reported</TableHead>
                 <TableHead>
                   Action
                 </TableHead>
@@ -97,7 +97,7 @@ export default function AdminDashboardPage() {
               )}
               {incidents?.map((incident) => (
                 <TableRow key={incident.id}>
-                  <TableCell className="hidden sm:table-cell font-medium">{incident.incidentType}</TableCell>
+                  <TableCell className="font-medium">{incident.incidentType}</TableCell>
                   <TableCell>
                     <Badge 
                       variant={incident.status === 'New' ? 'destructive' : incident.status === 'Acknowledged' ? 'default' : 'secondary'}
@@ -106,13 +106,13 @@ export default function AdminDashboardPage() {
                       {incident.status?.toLowerCase() || 'new'}
                     </Badge>
                   </TableCell>
-                  <TableCell className="hidden sm:table-cell">
+                  <TableCell>
                     {incident.userName}
                   </TableCell>
-                  <TableCell className="hidden md:table-cell">
+                  <TableCell>
                     {incident.studentNumber}
                   </TableCell>
-                  <TableCell className="hidden md:table-cell">
+                  <TableCell>
                     {formatDistanceToNow(new Date(incident.reportDateTime), { addSuffix: true })}
                   </TableCell>
                   <TableCell>
