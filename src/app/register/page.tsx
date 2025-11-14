@@ -37,7 +37,6 @@ export default function RegisterPage() {
       })
       router.push('/');
     } catch (error: any) {
-      console.error(error);
       let errorMessage = "An unknown error occurred.";
       if (error.code === 'auth/email-already-in-use') {
         errorMessage = 'This email is already registered. Please log in.';

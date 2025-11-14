@@ -29,7 +29,6 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/dashboard');
     } catch (error: any) {
-      console.error(error);
       toast({
         variant: "destructive",
         title: "Login Failed",
