@@ -1,0 +1,202 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Flame, HeartPulse, ShieldAlert, Frown, Siren, MapPin, Upload } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { PageHeader } from '@/components/PageHeader';
+import type { IncidentType } from '@/lib/types';
+
+const incidentTypes: { name: IncidentType, icon: React.ElementType, color: string }[] = [
+  { name: 'Fire', icon: Flame, color: 'text-red-500' },
+  { name: 'Medical', icon: HeartPulse, color: 'text-blue-500' },
+  { name: 'GBV', icon: ShieldAlert, color: 'text-purple-500' },
+  { name: 'Bullying', icon: Frown, color: 'text-yellow-500' },
+  { name: 'Crime', icon: Siren, color: 'text-orange-500' },
+];
+
+const reportFormSchema = z.object({
+  type: z.enum(['Fire', 'Medical', 'GBV', 'Bullying', 'Crime'], {
+    required_error: 'You need to select an incident type.',
+  }),
+  location: z.string().min(5, { message: 'Location must be at least 5 characters.' }),
+  description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
+  media: z.any(),
+});
+
+type ReportFormValues = z.infer<typeof reportFormSchema>;
+
+export default function ReportIncidentPage() {
+  const { toast } = useToast();
+  const [isLocating, setIsLocating] = useState(false);
+  const form = useForm<ReportFormValues>({
+    resolver: zodResolver(reportFormSchema),
+    defaultValues: {
+      location: '',
+      description: '',
+    },
+  });
+
+  const handleGetLocation = () => {
+    if (navigator.geolocation) {
+      setIsLocating(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          // In a real app, you would use a geocoding service to convert coords to an address.
+          const locationString = `Lat: ${latitude.toFixed(5)}, Lon: ${longitude.toFixed(5)}`;
+          form.setValue('location', locationString, { shouldValidate: true });
+          setIsLocating(false);
+          toast({ title: "Location detected successfully." });
+        },
+        () => {
+          setIsLocating(false);
+          toast({
+            title: "Error fetching location.",
+            description: "Please enable location services or enter your location manually.",
+            variant: "destructive",
+          });
+        }
+      );
+    } else {
+      toast({
+        title: "Geolocation is not supported by this browser.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  function onSubmit(data: ReportFormValues) {
+    console.log(data);
+    toast({
+      title: "Incident Reported Successfully",
+      description: "Campus staff have been notified and will respond shortly.",
+    });
+    form.reset();
+  }
+
+  return (
+    <>
+      <PageHeader
+        title="Report an Incident"
+        description="Your safety is our priority. Please provide as much detail as possible."
+      />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>1. Select Incident Type</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
+                      >
+                        {incidentTypes.map((type) => (
+                          <FormItem key={type.name}>
+                            <FormControl>
+                              <RadioGroupItem value={type.name} className="sr-only" />
+                            </FormControl>
+                            <Label
+                              className={`flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors
+                                ${field.value === type.name ? 'border-primary' : ''}`}
+                            >
+                              <type.icon className={`h-8 w-8 mb-2 ${type.color}`} />
+                              <span>{type.name}</span>
+                            </Label>
+                          </FormItem>
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>2. Provide Details</CardTitle>
+              <CardDescription>All information is confidential and will only be used for the response.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Location of Incident</FormLabel>
+                    <div className="flex gap-2">
+                      <FormControl>
+                        <Input placeholder="e.g., Near main library entrance" {...field} />
+                      </FormControl>
+                      <Button type="button" variant="outline" onClick={handleGetLocation} disabled={isLocating}>
+                        <MapPin className={`mr-2 h-4 w-4 ${isLocating ? 'animate-pulse' : ''}`} />
+                        {isLocating ? 'Locating...' : 'Use Current Location'}
+                      </Button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Detailed Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Describe what happened, who is involved, and any immediate dangers."
+                        className="resize-y min-h-[120px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="media"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Upload Media (Optional)</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Upload className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                        <Input type="file" className="pl-10" {...field} />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-end">
+            <Button type="submit" size="lg">Submit Report</Button>
+          </div>
+        </form>
+      </Form>
+    </>
+  );
+}
