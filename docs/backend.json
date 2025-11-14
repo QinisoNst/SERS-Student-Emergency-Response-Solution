@@ -51,7 +51,7 @@
         },
         "userId": {
           "type": "string",
-          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N IncidentReport)"
+          "description": "The UID of the user who submitted the report."
         },
         "incidentType": {
           "type": "string",
@@ -113,18 +113,14 @@
         }
       },
       {
-        "path": "/users/{userId}/incidentReports/{reportId}",
+        "path": "/incidentReports/{reportId}",
         "definition": {
           "entityName": "IncidentReport",
           "schema": {
             "$ref": "#/backend/entities/IncidentReport"
           },
-          "description": "Stores incident reports submitted by users. Path-based ownership ensures only the authenticated user can access their own reports.",
+          "description": "Stores incident reports submitted by any authenticated user. Access is controlled by checking the 'userId' field within the document.",
           "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
             {
               "name": "reportId",
               "description": "The unique identifier of the incident report."
@@ -133,6 +129,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging, following the principles of Authorization Independence, Clarity of Intent, DBAC, and QAPs. \n\nUser profiles are stored in a private collection `/users/{userId}/profile` to ensure only the authenticated user can access their own profile data. Incident reports are stored as subcollections under each user's document (`/users/{userId}/incidentReports/{reportId}`), clearly establishing ownership. This design prioritizes path-based ownership, enhancing security rule simplicity and efficiency. There is no denormalization required, since Authorization Independence is achieved with path-based ownership.\n\nStructural segregation is achieved by separating user profiles and incident reports into distinct collections and subcollections, respectively. This allows for homogeneous security postures: `/users/{userId}/profile` for private user data and `/users/{userId}/incidentReports/{reportId}` for user-owned incident reports.\n\nThe structure is designed to support secure `list` operations (QAPs) by leveraging path-based ownership. Security rules can easily filter based on `request.auth.uid` to ensure users can only access their own incident reports. Global roles or custom claims are not used, adhering to DBAC principles."
+    "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging. User profiles are stored in a private collection `/users/{userId}/profile` to ensure only the authenticated user can access their own profile data. Incident reports are now stored in a top-level collection `/incidentReports/{reportId}` to allow for easier querying of all incidents by administrators, while still maintaining user-level security through document-based access control (DBAC) on the `userId` field. This hybrid approach of path-based ownership for profiles and DBAC for reports provides a flexible and secure data model."
   }
 }

@@ -47,9 +47,9 @@ export default function ReportIncidentPage() {
   const firestore = useFirestore();
   
   const incidentReportsRef = useMemoFirebase(() => {
-    if (!user || !firestore) return null;
-    return collection(firestore, 'users', user.uid, 'incidentReports');
-  }, [user, firestore]);
+    if (!firestore) return null;
+    return collection(firestore, 'incidentReports');
+  }, [firestore]);
 
   const form = useForm<ReportFormValues>({
     resolver: zodResolver(reportFormSchema),
@@ -144,23 +144,23 @@ export default function ReportIncidentPage() {
                         className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
                       >
                         {incidentTypes.map((type) => (
-                          <FormItem key={type.name}>
-                            <FormControl>
-                              <RadioGroupItem
-                                value={type.name}
-                                id={type.name}
-                                className="sr-only"
-                              />
-                            </FormControl>
-                            <Label
-                              htmlFor={type.name}
-                              className={`flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors
-                                ${field.value === type.name ? 'border-primary' : ''}`}
-                            >
-                              <type.icon className={`h-8 w-8 mb-2 ${type.color}`} />
-                              <span>{type.name}</span>
-                            </Label>
-                          </FormItem>
+                           <FormItem key={type.name}>
+                             <FormControl>
+                               <RadioGroupItem
+                                 value={type.name}
+                                 id={type.name}
+                                 className="sr-only"
+                               />
+                             </FormControl>
+                             <Label
+                               htmlFor={type.name}
+                               className={`flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors
+                                 ${field.value === type.name ? 'border-primary' : ''}`}
+                             >
+                               <type.icon className={`h-8 w-8 mb-2 ${type.color}`} />
+                               <span>{type.name}</span>
+                             </Label>
+                           </FormItem>
                         ))}
                       </RadioGroup>
                     </FormControl>
@@ -175,7 +175,7 @@ export default function ReportIncidentPage() {
             <CardHeader>
               <CardTitle>2. Provide Details</CardTitle>
               <CardDescription>All information is confidential and will only be used for the response.</CardDescription>
-            </CardHeader>
+            </Header>
             <CardContent className="space-y-4">
               <FormField
                 control={form.control}
