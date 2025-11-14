@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { AlertTriangle, ArrowRight, Frown, HeartPulse, ShieldAlert, Siren, Flame } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Frown, HeartPulse, ShieldAlert, Siren, Flame, Phone } from 'lucide-react';
 import { collection, query, where } from 'firebase/firestore';
 
 import { Badge } from '@/components/ui/badge';
@@ -125,7 +125,7 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle>Know What to Report</CardTitle>
             <CardDescription>
-              Familiarize yourself with the types of incidents you can report.
+              Familiarize yourself with the types of incidents you can report and the numbers to call.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
@@ -133,15 +133,16 @@ export default function DashboardPage() {
               <div key={type.name} className="flex items-center justify-between gap-4 p-2 rounded-lg bg-muted/50">
                 <div className="flex items-center gap-4">
                   <type.icon className={`h-6 w-6 ${type.color}`} />
-                  <div className="grid gap-1">
-                    <p className="text-sm font-medium leading-none">
-                      {type.name}
-                    </p>
-                  </div>
+                  <p className="text-sm font-medium leading-none">
+                    {type.name}
+                  </p>
                 </div>
-                <a href={`tel:${type.phoneNumber}`} className="text-sm font-mono text-muted-foreground hover:text-foreground">
-                    {type.phoneNumber}
-                </a>
+                <Button asChild variant="outline" size="sm">
+                  <a href={`tel:${type.phoneNumber}`}>
+                      <Phone className="mr-2 h-4 w-4" />
+                      Call {type.phoneNumber}
+                  </a>
+                </Button>
               </div>
             ))}
           </CardContent>
