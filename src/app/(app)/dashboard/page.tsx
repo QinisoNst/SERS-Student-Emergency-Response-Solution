@@ -12,8 +12,8 @@ import { PageHeader } from '@/components/PageHeader';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 
 const incidentTypes = [
-  { name: 'Fire', icon: Flame, color: 'text-red-500', phoneNumber: '10177' },
-  { name: 'Medical', icon: HeartPulse, color: 'text-blue-500', phoneNumber: '10177' },
+  { name: 'Fire', icon: Flame, color: 'text-red-500', phoneNumber: '013 002 0001' },
+  { name: 'Medical', icon: HeartPulse, color: 'text-blue-500', phoneNumber: '013 002 0001' },
   { name: 'GBV', icon: ShieldAlert, color: 'text-purple-500', phoneNumber: '0800 428 428' },
   { name: 'Bullying', icon: Frown, color: 'text-yellow-500', phoneNumber: '0800 055 555' },
   { name: 'Crime', icon: Siren, color: 'text-orange-500', phoneNumber: '10111' },
