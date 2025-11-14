@@ -77,6 +77,7 @@ export default function AdminDashboardPage() {
                 <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="hidden md:table-cell">Name</TableHead>
+                <TableHead className="hidden md:table-cell">Student Number</TableHead>
                 <TableHead className="hidden md:table-cell">Reported</TableHead>
                 <TableHead>
                   Action
@@ -86,12 +87,12 @@ export default function AdminDashboardPage() {
             <TableBody>
               {isLoading && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center">Loading incidents...</TableCell>
+                  <TableCell colSpan={6} className="text-center">Loading incidents...</TableCell>
                 </TableRow>
               )}
               {!isLoading && incidents?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center">No incidents reported yet.</TableCell>
+                  <TableCell colSpan={6} className="text-center">No incidents reported yet.</TableCell>
                 </TableRow>
               )}
               {incidents?.map((incident) => (
@@ -107,6 +108,9 @@ export default function AdminDashboardPage() {
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {incident.userName}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    {incident.studentNumber}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {formatDistanceToNow(new Date(incident.reportDateTime), { addSuffix: true })}
