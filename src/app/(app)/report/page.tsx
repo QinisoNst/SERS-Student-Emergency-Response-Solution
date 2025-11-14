@@ -5,6 +5,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Flame, HeartPulse, ShieldAlert, Frown, Siren, MapPin } from 'lucide-react';
+import { collection, doc } from 'firebase/firestore';
+import { v4 as uuidv4 } from 'uuid';
+
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +19,8 @@ import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/PageHeader';
 import type { IncidentType } from '@/lib/types';
 import { Label } from '@/components/ui/label';
+import { useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 const incidentTypes: { name: IncidentType, icon: React.ElementType, color: string }[] = [
   { name: 'Fire', icon: Flame, color: 'text-red-500' },
@@ -26,11 +31,11 @@ const incidentTypes: { name: IncidentType, icon: React.ElementType, color: strin
 ];
 
 const reportFormSchema = z.object({
-  type: z.enum(['Fire', 'Medical', 'GBV', 'Bullying', 'Crime'], {
+  incidentType: z.enum(['Fire', 'Medical', 'GBV', 'Bullying', 'Crime'], {
     required_error: 'You need to select an incident type.',
   }),
-  location: z.string().min(5, { message: 'Location must be at least 5 characters.' }),
-  description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
+  locationDetails: z.string().min(5, { message: 'Location must be at least 5 characters.' }),
+  detailedDescription: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
 });
 
 type ReportFormValues = z.infer<typeof reportFormSchema>;
@@ -38,11 +43,19 @@ type ReportFormValues = z.infer<typeof reportFormSchema>;
 export default function ReportIncidentPage() {
   const { toast } = useToast();
   const [isLocating, setIsLocating] = useState(false);
+  const { user } = useUser();
+  const firestore = useFirestore();
+  
+  const incidentReportsRef = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return collection(firestore, 'users', user.uid, 'incidentReports');
+  }, [user, firestore]);
+
   const form = useForm<ReportFormValues>({
     resolver: zodResolver(reportFormSchema),
     defaultValues: {
-      location: '',
-      description: '',
+      locationDetails: '',
+      detailedDescription: '',
     },
   });
 
@@ -54,7 +67,7 @@ export default function ReportIncidentPage() {
           const { latitude, longitude } = position.coords;
           // In a real app, you would use a geocoding service to convert coords to an address.
           const locationString = `Lat: ${latitude.toFixed(5)}, Lon: ${longitude.toFixed(5)}`;
-          form.setValue('location', locationString, { shouldValidate: true });
+          form.setValue('locationDetails', locationString, { shouldValidate: true });
           setIsLocating(false);
           toast({ title: "Location detected successfully." });
         },
@@ -76,7 +89,29 @@ export default function ReportIncidentPage() {
   };
 
   function onSubmit(data: ReportFormValues) {
-    console.log(data);
+    if (!incidentReportsRef || !user) {
+        toast({
+            title: 'Error',
+            description: 'You must be logged in to submit a report.',
+            variant: 'destructive',
+        });
+        return;
+    }
+
+    const reportId = uuidv4();
+    const newReport = {
+      ...data,
+      id: reportId,
+      userId: user.uid,
+      reportDateTime: new Date().toISOString(),
+      mediaUrls: [],
+    };
+    
+    // Create a new document reference with the generated ID
+    const newDocRef = doc(incidentReportsRef, reportId);
+
+    addDocumentNonBlocking(newDocRef, newReport);
+    
     toast({
       title: "Incident Reported Successfully",
       description: "Campus staff have been notified and will respond shortly.",
@@ -99,7 +134,7 @@ export default function ReportIncidentPage() {
             <CardContent>
               <FormField
                 control={form.control}
-                name="type"
+                name="incidentType"
                 render={({ field }) => (
                   <FormItem className="space-y-3">
                     <FormControl>
@@ -144,7 +179,7 @@ export default function ReportIncidentPage() {
             <CardContent className="space-y-4">
               <FormField
                 control={form.control}
-                name="location"
+                name="locationDetails"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Location of Incident</FormLabel>
@@ -163,7 +198,7 @@ export default function ReportIncidentPage() {
               />
               <FormField
                 control={form.control}
-                name="description"
+                name="detailedDescription"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Detailed Description</FormLabel>

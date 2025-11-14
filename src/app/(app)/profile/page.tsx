@@ -3,6 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { doc } from 'firebase/firestore';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -11,35 +12,72 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/PageHeader';
+import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
+import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { useEffect } from 'react';
 
 const profileFormSchema = z.object({
-  fullName: z.string().min(2, { message: 'Full name must be at least 2 characters.' }),
-  studentId: z.string().min(5, { message: 'Student ID seems too short.' }),
-  phone: z.string().min(10, { message: 'Please enter a valid phone number.' }),
+  contactName: z.string().min(2, { message: 'Full name must be at least 2 characters.' }),
+  contactPhoneNumber: z.string().min(10, { message: 'Please enter a valid phone number.' }),
   emergencyContactName: z.string().min(2, { message: 'Contact name must be at least 2 characters.' }),
-  emergencyContactPhone: z.string().min(10, { message: 'Please enter a valid phone number.' }),
+  emergencyContactPhoneNumber: z.string().min(10, { message: 'Please enter a valid phone number.' }),
+  medicalInformation: z.string().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-const defaultValues: Partial<ProfileFormValues> = {
-  fullName: 'Jane Doe',
-  studentId: 'S54321',
-  phone: '123-456-7890',
-  emergencyContactName: 'John Doe',
-  emergencyContactPhone: '098-765-4321',
-};
-
 export default function ProfilePage() {
   const { toast } = useToast();
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return doc(firestore, 'users', user.uid, 'profile', user.uid);
+  }, [user, firestore]);
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
-    defaultValues,
+    defaultValues: {
+      contactName: '',
+      contactPhoneNumber: '',
+      emergencyContactName: '',
+      emergencyContactPhoneNumber: '',
+      medicalInformation: '',
+    },
     mode: 'onChange',
   });
 
+  // TODO: Fetch existing profile data and set form defaultValues
+  useEffect(() => {
+    // This is where you would fetch user profile data from Firestore
+    // For now, we use mock data.
+    const mockData = {
+      contactName: 'Jane Doe',
+      contactPhoneNumber: '123-456-7890',
+      emergencyContactName: 'John Doe',
+      emergencyContactPhoneNumber: '098-765-4321',
+      medicalInformation: 'None',
+    };
+    form.reset(mockData);
+  }, [form]);
+
+
   function onSubmit(data: ProfileFormValues) {
-    console.log(data);
+    if (!userProfileRef) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to update your profile.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    setDocumentNonBlocking(userProfileRef, {
+      ...data,
+      id: user!.uid,
+    }, { merge: true });
+
     toast({
       title: 'Profile Updated',
       description: 'Your information has been saved successfully.',
@@ -58,8 +96,8 @@ export default function ProfilePage() {
             <CardHeader>
               <div className="flex items-center gap-4">
                 <Avatar className="h-16 w-16">
-                  <AvatarImage src="https://picsum.photos/seed/user-avatar/100/100" alt="@student" />
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarImage src={user?.photoURL || "https://picsum.photos/seed/user-avatar/100/100"} alt="@student" />
+                  <AvatarFallback>{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
                 </Avatar>
                 <div>
                   <CardTitle className="text-2xl">Personal Information</CardTitle>
@@ -70,7 +108,7 @@ export default function ProfilePage() {
             <CardContent className="grid gap-4 md:grid-cols-2">
               <FormField
                 control={form.control}
-                name="fullName"
+                name="contactName"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Full Name</FormLabel>
@@ -83,20 +121,7 @@ export default function ProfilePage() {
               />
               <FormField
                 control={form.control}
-                name="studentId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Student ID</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Your student ID" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="phone"
+                name="contactPhoneNumber"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Phone Number</FormLabel>
@@ -131,12 +156,25 @@ export default function ProfilePage() {
               />
               <FormField
                 control={form.control}
-                name="emergencyContactPhone"
+                name="emergencyContactPhoneNumber"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Contact's Phone Number</FormLabel>
                     <FormControl>
                       <Input placeholder="Emergency contact's phone" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="medicalInformation"
+                render={({ field }) => (
+                  <FormItem className="md:col-span-2">
+                    <FormLabel>Medical Information (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Allergies, conditions" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

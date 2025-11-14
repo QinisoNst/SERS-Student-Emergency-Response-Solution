@@ -15,15 +15,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/icons';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useAuth } from '@/firebase';
+import { initiateEmailSignUp } from '@/firebase/non-blocking-login';
 
 export default function RegisterPage() {
   const loginImage = PlaceHolderImages.find((p) => p.id === 'login-hero');
   const router = useRouter();
+  const auth = useAuth();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Handle registration logic here...
-    console.log('User registered');
+    const email = event.currentTarget.email.value;
+    const password = event.currentTarget.password.value;
+    initiateEmailSignUp(auth, email, password);
     router.push('/');
   };
 
