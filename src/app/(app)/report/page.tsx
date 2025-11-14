@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/PageHeader';
 import type { IncidentType } from '@/lib/types';
+import { Label } from '@/components/ui/label';
 
 const incidentTypes: { name: IncidentType, icon: React.ElementType, color: string }[] = [
   { name: 'Fire', icon: Flame, color: 'text-red-500' },

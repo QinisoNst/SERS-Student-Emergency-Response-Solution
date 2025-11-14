@@ -53,10 +53,10 @@ export default function LoginPage() {
                   </div>
                   <Input id="password" type="password" required />
                 </div>
-                <Button type="submit" className="w-full" asChild>
+                <Button asChild type="submit" className="w-full">
                   <Link href="/dashboard">Login</Link>
                 </Button>
-                 <Button variant="outline" className="w-full" asChild>
+                 <Button asChild variant="outline" className="w-full">
                   <Link href="/admin">Admin Login</Link>
                 </Button>
               </div>
