@@ -10,6 +10,7 @@ import {
   Users,
 } from 'lucide-react';
 import { doc } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -34,7 +35,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Logo } from './icons';
-import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { useDoc, useFirestore, useUser, useMemoFirebase, useAuth } from '@/firebase';
 
 
 const navItems = [
@@ -51,6 +52,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user } = useUser();
   const firestore = useFirestore();
+  const auth = useAuth();
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user || !firestore) return null;
@@ -58,6 +60,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   }, [user, firestore]);
 
   const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+  };
 
 
   return (
@@ -111,12 +117,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-               <Link href="/">
-                <DropdownMenuItem>
+               <DropdownMenuItem onSelect={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
-              </Link>
             </DropdownMenuContent>
           </DropdownMenu>
         </SidebarFooter>
