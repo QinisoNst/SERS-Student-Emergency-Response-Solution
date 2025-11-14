@@ -105,6 +105,7 @@ export default function ReportIncidentPage() {
       userId: user.uid,
       reportDateTime: new Date().toISOString(),
       mediaUrls: [],
+      status: 'New',
     };
     
     // Create a new document reference with the generated ID
@@ -144,7 +145,7 @@ export default function ReportIncidentPage() {
                         className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
                       >
                         {incidentTypes.map((type) => (
-                           <FormItem key={type.name}>
+                           <FormItem key={type.name} className="flex items-center space-x-2">
                              <FormControl>
                                <RadioGroupItem
                                  value={type.name}
@@ -154,7 +155,7 @@ export default function ReportIncidentPage() {
                              </FormControl>
                              <Label
                                htmlFor={type.name}
-                               className={`flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors
+                               className={`flex w-full flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors
                                  ${field.value === type.name ? 'border-primary' : ''}`}
                              >
                                <type.icon className={`h-8 w-8 mb-2 ${type.color}`} />

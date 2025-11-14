@@ -1,5 +1,8 @@
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
+'use client';
+
+import { MoreHorizontal } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { collection } from 'firebase/firestore';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,19 +16,32 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageHeader } from '@/components/PageHeader';
-import { mockIncidents } from '@/lib/mock-data';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+
+// Define the shape of an incident report from Firestore
+interface IncidentReport {
+  id: string;
+  incidentType: string;
+  status: 'New' | 'Acknowledged' | 'Resolved';
+  userId: string;
+  reportDateTime: string;
+}
 
 export default function AdminDashboardPage() {
+  const firestore = useFirestore();
+
+  // Memoize the query to prevent re-renders
+  const incidentReportsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'incidentReports');
+  }, [firestore]);
+
+  // Fetch the collection data
+  const { data: incidents, isLoading } = useCollection<IncidentReport>(incidentReportsQuery);
+
   return (
     <>
-      <PageHeader title="Incidents" description="Manage and respond to all reported incidents on campus.">
-        <Button size="sm" className="gap-1">
-          <PlusCircle className="h-3.5 w-3.5" />
-          <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-            Add Incident
-          </span>
-        </Button>
-      </PageHeader>
+      <PageHeader title="Incidents" description="Manage and respond to all reported incidents on campus." />
       
       <Card>
         <CardHeader>
@@ -40,7 +56,7 @@ export default function AdminDashboardPage() {
               <TableRow>
                 <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="hidden md:table-cell">Student</TableHead>
+                <TableHead className="hidden md:table-cell">Student ID</TableHead>
                 <TableHead className="hidden md:table-cell">Reported</TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
@@ -48,22 +64,32 @@ export default function AdminDashboardPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockIncidents.map((incident) => (
+              {isLoading && (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center">Loading incidents...</TableCell>
+                </TableRow>
+              )}
+              {!isLoading && incidents?.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center">No incidents reported yet.</TableCell>
+                </TableRow>
+              )}
+              {incidents?.map((incident) => (
                 <TableRow key={incident.id}>
-                  <TableCell className="font-medium">{incident.type}</TableCell>
+                  <TableCell className="font-medium">{incident.incidentType}</TableCell>
                   <TableCell>
                     <Badge 
                       variant={incident.status === 'New' ? 'destructive' : incident.status === 'Acknowledged' ? 'default' : 'secondary'}
                       className="capitalize"
                     >
-                      {incident.status.toLowerCase()}
+                      {incident.status?.toLowerCase() || 'new'}
                     </Badge>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {incident.student.name} ({incident.student.id})
+                    {incident.userId}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {formatDistanceToNow(incident.reportedAt, { addSuffix: true })}
+                    {formatDistanceToNow(new Date(incident.reportDateTime), { addSuffix: true })}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
