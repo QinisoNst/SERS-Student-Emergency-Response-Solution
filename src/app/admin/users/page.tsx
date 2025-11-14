@@ -42,7 +42,7 @@ export default function AdminUsersPage() {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>User Type</TableHead>
-                <TableHead>Identifier</TableHead>
+                <TableHead>Student Number</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
