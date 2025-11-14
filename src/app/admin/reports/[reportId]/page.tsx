@@ -62,7 +62,7 @@ export default function ReportDetailPage() {
                 <CardTitle className="flex items-center justify-between">
                     <span>{report?.incidentType} Incident</span>
                     <Badge variant={getStatusVariant(report?.status || 'New')} className="capitalize">
-                        {report?.status.toLowerCase() || '...'}
+                        {report?.status ? report.status.toLowerCase() : '...'}
                     </Badge>
                 </CardTitle>
             )}
