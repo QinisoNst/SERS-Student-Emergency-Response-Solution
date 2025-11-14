@@ -8,17 +8,36 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/icons";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { useAuth } from "@/firebase";
+import { useAuth, useDoc, useFirestore, useMemoFirebase } from "@/firebase";
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { FormEvent } from "react";
+import { FormEvent, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { doc } from "firebase/firestore";
 
 
 export default function LoginPage() {
   const loginImage = PlaceHolderImages.find(p => p.id === "login-hero");
   const auth = useAuth();
+  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
+
+  const userProfileRef = useMemoFirebase(() => {
+    if (!auth.currentUser || !firestore) return null;
+    return doc(firestore, 'users', auth.currentUser.uid, 'profile', auth.currentUser.uid);
+  }, [auth.currentUser, firestore]);
+  
+  const { data: userProfile } = useDoc<{ userType: string }>(userProfileRef);
+
+  useEffect(() => {
+    if (userProfile) {
+      if (userProfile.userType === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push('/dashboard');
+      }
+    }
+  }, [userProfile, router]);
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -27,7 +46,7 @@ export default function LoginPage() {
     
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push('/dashboard');
+      // The useEffect will handle redirection
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -83,9 +102,6 @@ export default function LoginPage() {
                   </div>
                   <Button type="submit" className="w-full">
                     Login
-                  </Button>
-                  <Button asChild variant="outline" className="w-full">
-                    <Link href="/admin">Admin Login</Link>
                   </Button>
                   <div className="mt-4 text-center text-sm">
                     Don&apos;t have an account?{" "}

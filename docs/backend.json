@@ -29,14 +29,16 @@
         "medicalInformation": {
           "type": "string",
           "description": "Any relevant medical information the student wishes to share."
+        },
+        "userType": {
+          "type": "string",
+          "description": "The type of user, e.g., 'student' or 'admin'."
         }
       },
       "required": [
         "id",
         "contactName",
-        "contactPhoneNumber",
-        "emergencyContactName",
-        "emergencyContactPhoneNumber"
+        "userType"
       ]
     },
     "IncidentReport": {

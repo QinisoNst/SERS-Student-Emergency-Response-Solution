@@ -3,6 +3,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { doc } from 'firebase/firestore';
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -13,39 +15,81 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Logo } from '@/components/icons';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { useAuth } from '@/firebase';
+import { useAuth, useFirestore, setDocumentNonBlocking } from '@/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 export default function RegisterPage() {
   const loginImage = PlaceHolderImages.find((p) => p.id === 'login-hero');
   const router = useRouter();
   const auth = useAuth();
+  const firestore = useFirestore();
   const { toast } = useToast();
+  const [userType, setUserType] = useState('');
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const fullName = event.currentTarget.fullName.value;
     const email = event.currentTarget.email.value;
     const password = event.currentTarget.password.value;
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
+
+    if (!userType) {
       toast({
-        title: "Account Created",
-        description: "You have been successfully registered. Please log in.",
-      })
+        variant: 'destructive',
+        title: 'Registration Failed',
+        description: 'Please select a user type.',
+      });
+      return;
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      // Create user profile in Firestore
+      const userProfileRef = doc(firestore, 'users', user.uid, 'profile', user.uid);
+      const userProfileData = {
+        id: user.uid,
+        contactName: fullName,
+        userType: userType,
+        contactPhoneNumber: '',
+        emergencyContactName: '',
+        emergencyContactPhoneNumber: '',
+        medicalInformation: '',
+      };
+      
+      setDocumentNonBlocking(userProfileRef, userProfileData, { merge: true });
+
+      toast({
+        title: 'Account Created',
+        description: 'You have been successfully registered. Please log in.',
+      });
       router.push('/');
     } catch (error: any) {
-      let errorMessage = "An unknown error occurred.";
+      let errorMessage = 'An unknown error occurred.';
       if (error.code === 'auth/email-already-in-use') {
         errorMessage = 'This email is already registered. Please log in.';
       } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'The password is too weak. Please choose a stronger password.';
+        errorMessage =
+          'The password is too weak. Please choose a stronger password.';
       }
       toast({
-        variant: "destructive",
-        title: "Registration Failed",
+        variant: 'destructive',
+        title: 'Registration Failed',
         description: errorMessage,
       });
     }
@@ -75,8 +119,8 @@ export default function RegisterPage() {
               <form onSubmit={handleSubmit}>
                 <div className="grid gap-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="full-name">Full Name</Label>
-                    <Input id="full-name" placeholder="Jane Doe" required />
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <Input id="fullName" placeholder="Jane Doe" required />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
@@ -90,6 +134,18 @@ export default function RegisterPage() {
                   <div className="grid gap-2">
                     <Label htmlFor="password">Password</Label>
                     <Input id="password" type="password" required />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="userType">User Type</Label>
+                    <Select onValueChange={setUserType} value={userType}>
+                      <SelectTrigger id="userType">
+                        <SelectValue placeholder="Select user type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="student">Student</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <Button type="submit" className="w-full">
                     Create an account
