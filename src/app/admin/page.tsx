@@ -106,8 +106,7 @@ export default function AdminDashboardPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    <div>{incident.userName}</div>
-                    <div className="text-xs text-muted-foreground">{incident.studentNumber}</div>
+                    {incident.userName}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {formatDistanceToNow(new Date(incident.reportDateTime), { addSuffix: true })}
