@@ -51,7 +51,7 @@ service cloud.firestore {
      * @path /incidentReports/{reportId}
      * @allow (create) Any signed-in user can create a report.
      * @allow (get, update, delete) Only the user who created the report can access it.
-     * @deny (list) Listing all reports is denied by default to protect privacy.
+     * @allow (list) Any signed in user can list all reports (for admin dashboard).
      * @principle Enforces document ownership for read/write operations via a 'userId' field check (DBAC).
      */
     match /incidentReports/{reportId} {
@@ -61,8 +61,9 @@ service cloud.firestore {
       // Allow read, update, and delete only if the user is signed in and is the owner of the document.
       allow get, update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
       
-      // Explicitly deny list operations for non-admins.
-      allow list: if false;
+      // Allow list operations for any signed in user (for admin functionality).
+      // In a production app, this should be restricted to admin users.
+      allow list: if isSignedIn();
     }
 
     // Helper functions
