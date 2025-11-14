@@ -5,7 +5,8 @@
  * This ruleset enforces a strict user-ownership model. Users can only
  * access their own profile data and incident reports. This is achieved
  * primarily through path-based authorization for profiles and document-based
- * authorization for incident reports. Admins have broader read access.
+ * authorization for incident reports. Admins have broader read access and can
+ * update incident statuses.
  *
  * Data Structure:
  * - User profiles are stored under `/users/{userId}/profile/{profileId}`.
@@ -15,7 +16,7 @@
  * - User listing is enabled for signed-in users (admins) via a collection group query.
  * - Read-only collections are not present in this data model.
  * - The default security posture for ambiguous relationships is strict: deny all.
- * - No global admin roles are used, adhering to a purely user-centric access model.
+ * - Admin roles are checked by reading the user's profile during write operations.
  *
  * Denormalization for Authorization:
  * - The `userId` is stored within each incident report document to enable
@@ -60,7 +61,8 @@ service cloud.firestore {
      * @path /incidentReports/{reportId}
      * @allow (create) Any signed-in user can create a report.
      * @allow (get, list) Any signed-in user can get or list reports (for admin dashboard).
-     * @allow (update, delete) Only the user who created the report can access it.
+     * @allow (update) Only the user who created the report or an admin can update it.
+     * @allow (delete) Only the user who created the report can delete it.
      * @principle Enforces document ownership for write operations via a 'userId' field check (DBAC).
      */
     match /incidentReports/{reportId} {
@@ -69,10 +71,11 @@ service cloud.firestore {
 
       // Allow read and list for any signed-in user (for admins to view details).
       allow get, list: if isSignedIn();
-
-      // Allow update and delete only if the user is the owner.
+      
+      // Allow update if the user is the owner OR if the user is an admin.
       // Admin update logic is handled through the app interface, not direct rule changes here.
-      allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
 
     // Helper functions
@@ -86,6 +89,11 @@ service cloud.firestore {
 
     function isExistingOwner(userId) {
         return isOwner(userId) && resource != null;
+    }
+
+    // Helper function to check if a user is an admin
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)/profile/$(request.auth.uid)).data.userType == 'admin';
     }
   }
 }
