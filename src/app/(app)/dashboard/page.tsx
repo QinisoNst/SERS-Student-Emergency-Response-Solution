@@ -1,12 +1,15 @@
+'use client';
+
 import Link from 'next/link';
 import { AlertTriangle, ArrowRight, Frown, HeartPulse, ShieldAlert, Siren, Flame } from 'lucide-react';
+import { collection, query, where } from 'firebase/firestore';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageHeader } from '@/components/PageHeader';
-import { mockIncidents } from '@/lib/mock-data';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 
 const incidentTypes = [
   { name: 'Fire', icon: Flame, color: 'text-red-500' },
@@ -16,12 +19,32 @@ const incidentTypes = [
   { name: 'Crime', icon: Siren, color: 'text-orange-500' },
 ];
 
+interface IncidentReport {
+  id: string;
+  incidentType: string;
+  locationDetails: string;
+  status: 'New' | 'Acknowledged' | 'Resolved';
+}
+
 export default function DashboardPage() {
-  const recentUserIncidents = mockIncidents.slice(0, 3);
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const userIncidentsQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(
+      collection(firestore, 'incidentReports'),
+      where('userId', '==', user.uid)
+    );
+  }, [firestore, user]);
+
+  const { data: userIncidents, isLoading } = useCollection<IncidentReport>(userIncidentsQuery);
+
+  const recentUserIncidents = userIncidents?.slice(0, 3) || [];
 
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-8">
-      <PageHeader title="Dashboard" description="Welcome back, Jane. Stay safe on campus." />
+      <PageHeader title="Dashboard" description="Welcome back. Stay safe on campus." />
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="col-span-1 md:col-span-2 lg:col-span-4 bg-primary text-primary-foreground border-0">
@@ -68,12 +91,22 @@ export default function DashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentUserIncidents.map((incident) => (
+                {isLoading && (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center">Loading your reports...</TableCell>
+                  </TableRow>
+                )}
+                {!isLoading && recentUserIncidents.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center">You have not reported any incidents.</TableCell>
+                  </TableRow>
+                )}
+                {!isLoading && recentUserIncidents.map((incident) => (
                   <TableRow key={incident.id}>
                     <TableCell>
-                      <div className="font-medium">{incident.type}</div>
+                      <div className="font-medium">{incident.incidentType}</div>
                     </TableCell>
-                    <TableCell>{incident.location}</TableCell>
+                    <TableCell>{incident.locationDetails}</TableCell>
                     <TableCell className="text-right">
                       <Badge 
                         variant={incident.status === 'New' ? 'destructive' : incident.status === 'Acknowledged' ? 'default' : 'secondary'}
