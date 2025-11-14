@@ -107,7 +107,7 @@ export default function RegisterPage() {
           <div className="grid gap-2 text-center">
             <div className="flex justify-center items-center gap-2">
               <Logo className="h-8 w-8 text-primary" />
-              <h1 className="text-3xl font-bold font-headline">SERS</h1>
+              <h1 className="text-3xl font-brand font-bold">SERS</h1>
             </div>
             <p className="text-balance text-muted-foreground">
               Create your Student Emergency Response account

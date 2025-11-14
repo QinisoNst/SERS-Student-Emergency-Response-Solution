@@ -82,7 +82,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <SidebarHeader>
           <div className="flex items-center gap-2">
             <Logo className="size-7 text-primary" />
-            <span className="text-lg font-semibold font-headline">SERS</span>
+            <span className="text-lg font-brand font-bold">SERS</span>
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -139,7 +139,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <header className="flex h-14 items-center gap-4 border-b bg-background/50 backdrop-blur-sm px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
           <SidebarTrigger />
           <div className="w-full flex-1">
-             <h1 className="text-xl font-semibold font-headline">SERS</h1>
+             <h1 className="text-xl font-brand font-bold">SERS</h1>
           </div>
           <Button variant="ghost" size="icon" className="rounded-full">
             <Bell className="h-5 w-5" />
