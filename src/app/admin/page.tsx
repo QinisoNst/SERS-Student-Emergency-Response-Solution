@@ -2,7 +2,10 @@
 
 import { MoreHorizontal } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { collection } from 'firebase/firestore';
+import { collection, doc } from 'firebase/firestore';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,6 +20,8 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageHeader } from '@/components/PageHeader';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { useToast } from '@/hooks/use-toast';
 
 // Define the shape of an incident report from Firestore
 interface IncidentReport {
@@ -30,6 +35,9 @@ interface IncidentReport {
 
 export default function AdminDashboardPage() {
   const firestore = useFirestore();
+  const { toast } = useToast();
+  const router = useRouter();
+
 
   // Memoize the query to prevent re-renders
   const incidentReportsQuery = useMemoFirebase(() => {
@@ -39,6 +47,16 @@ export default function AdminDashboardPage() {
 
   // Fetch the collection data
   const { data: incidents, isLoading } = useCollection<IncidentReport>(incidentReportsQuery);
+  
+  const handleUpdateStatus = (incidentId: string, status: 'Acknowledged' | 'Resolved') => {
+    if (!firestore) return;
+    const incidentRef = doc(firestore, 'incidentReports', incidentId);
+    updateDocumentNonBlocking(incidentRef, { status });
+    toast({
+      title: 'Status Updated',
+      description: `Incident #${incidentId.substring(0,6)} has been marked as ${status}.`,
+    });
+  };
 
   return (
     <>
@@ -102,9 +120,21 @@ export default function AdminDashboardPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                        <DropdownMenuItem>Acknowledge</DropdownMenuItem>
-                        <DropdownMenuItem>Resolve</DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => router.push(`/admin/reports/${incident.id}`)}>
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => handleUpdateStatus(incident.id, 'Acknowledged')}
+                          disabled={incident.status === 'Acknowledged' || incident.status === 'Resolved'}
+                        >
+                          Acknowledge
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => handleUpdateStatus(incident.id, 'Resolved')}
+                          disabled={incident.status === 'Resolved'}
+                        >
+                          Resolve
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
