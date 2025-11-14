@@ -76,9 +76,9 @@ export default function AdminDashboardPage() {
               <TableRow>
                 <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Student Number</TableHead>
-                <TableHead>Reported</TableHead>
+                <TableHead className="hidden md:table-cell">Name</TableHead>
+                <TableHead className="hidden lg:table-cell">Student Number</TableHead>
+                <TableHead className="hidden md:table-cell">Reported</TableHead>
                 <TableHead>
                   Action
                 </TableHead>
@@ -106,13 +106,13 @@ export default function AdminDashboardPage() {
                       {incident.status?.toLowerCase() || 'new'}
                     </Badge>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell">
                     {incident.userName}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden lg:table-cell">
                     {incident.studentNumber}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell">
                     {formatDistanceToNow(new Date(incident.reportDateTime), { addSuffix: true })}
                   </TableCell>
                   <TableCell>
