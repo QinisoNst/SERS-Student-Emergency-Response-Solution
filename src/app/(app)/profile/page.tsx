@@ -12,7 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/PageHeader';
-import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore, useMemoFirebase, useDoc } from '@/firebase';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useEffect } from 'react';
 
@@ -26,6 +26,15 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
+interface UserProfile {
+  contactName?: string;
+  contactPhoneNumber?: string;
+  emergencyContactName?: string;
+  emergencyContactPhoneNumber?: string;
+  medicalInformation?: string;
+  studentNumber?: string;
+}
+
 export default function ProfilePage() {
   const { toast } = useToast();
   const { user } = useUser();
@@ -35,6 +44,8 @@ export default function ProfilePage() {
     if (!user || !firestore) return null;
     return doc(firestore, 'users', user.uid, 'profile', user.uid);
   }, [user, firestore]);
+
+  const { data: userProfile, isLoading } = useDoc<UserProfile>(userProfileRef);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -48,23 +59,21 @@ export default function ProfilePage() {
     mode: 'onChange',
   });
 
-  // TODO: Fetch existing profile data and set form defaultValues
   useEffect(() => {
-    // This is where you would fetch user profile data from Firestore
-    // For now, we use mock data.
-    const mockData = {
-      contactName: 'Jane Doe',
-      contactPhoneNumber: '123-456-7890',
-      emergencyContactName: 'John Doe',
-      emergencyContactPhoneNumber: '098-765-4321',
-      medicalInformation: 'None',
-    };
-    form.reset(mockData);
-  }, [form]);
+    if (userProfile) {
+      form.reset({
+        contactName: userProfile.contactName || '',
+        contactPhoneNumber: userProfile.contactPhoneNumber || '',
+        emergencyContactName: userProfile.emergencyContactName || '',
+        emergencyContactPhoneNumber: userProfile.emergencyContactPhoneNumber || '',
+        medicalInformation: userProfile.medicalInformation || '',
+      });
+    }
+  }, [userProfile, form]);
 
 
   function onSubmit(data: ProfileFormValues) {
-    if (!userProfileRef) {
+    if (!userProfileRef || !user) {
       toast({
         title: 'Error',
         description: 'You must be logged in to update your profile.',
@@ -75,7 +84,7 @@ export default function ProfilePage() {
     
     setDocumentNonBlocking(userProfileRef, {
       ...data,
-      id: user!.uid,
+      id: user.uid, // ensure id is set
     }, { merge: true });
 
     toast({
@@ -97,7 +106,7 @@ export default function ProfilePage() {
               <div className="flex items-center gap-4">
                 <Avatar className="h-16 w-16">
                   <AvatarImage src={user?.photoURL || "https://picsum.photos/seed/user-avatar/100/100"} alt="@student" />
-                  <AvatarFallback>{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                  <AvatarFallback>{userProfile?.contactName?.charAt(0) || 'U'}</AvatarFallback>
                 </Avatar>
                 <div>
                   <CardTitle className="text-2xl">Personal Information</CardTitle>
@@ -184,7 +193,7 @@ export default function ProfilePage() {
           </Card>
           
           <div className="flex justify-end">
-            <Button type="submit">Save Changes</Button>
+            <Button type="submit" disabled={isLoading}>Save Changes</Button>
           </div>
         </form>
       </Form>
