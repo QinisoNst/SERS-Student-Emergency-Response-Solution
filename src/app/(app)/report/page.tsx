@@ -175,7 +175,7 @@ export default function ReportIncidentPage() {
             <CardHeader>
               <CardTitle>2. Provide Details</CardTitle>
               <CardDescription>All information is confidential and will only be used for the response.</CardDescription>
-            </Header>
+            </CardHeader>
             <CardContent className="space-y-4">
               <FormField
                 control={form.control}
