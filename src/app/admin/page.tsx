@@ -30,6 +30,7 @@ interface IncidentReport {
   status: 'New' | 'Acknowledged' | 'Resolved';
   userId: string;
   userName: string;
+  studentNumber?: string;
   reportDateTime: string;
 }
 
@@ -105,7 +106,8 @@ export default function AdminDashboardPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {incident.userName}
+                    <div>{incident.userName}</div>
+                    <div className="text-xs text-muted-foreground">{incident.studentNumber}</div>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {formatDistanceToNow(new Date(incident.reportDateTime), { addSuffix: true })}
