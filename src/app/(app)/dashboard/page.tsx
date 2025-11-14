@@ -12,11 +12,11 @@ import { PageHeader } from '@/components/PageHeader';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 
 const incidentTypes = [
-  { name: 'Fire', icon: Flame, color: 'text-red-500' },
-  { name: 'Medical', icon: HeartPulse, color: 'text-blue-500' },
-  { name: 'GBV', icon: ShieldAlert, color: 'text-purple-500' },
-  { name: 'Bullying', icon: Frown, color: 'text-yellow-500' },
-  { name: 'Crime', icon: Siren, color: 'text-orange-500' },
+  { name: 'Fire', icon: Flame, color: 'text-red-500', phoneNumber: '10177' },
+  { name: 'Medical', icon: HeartPulse, color: 'text-blue-500', phoneNumber: '10177' },
+  { name: 'GBV', icon: ShieldAlert, color: 'text-purple-500', phoneNumber: '0800 428 428' },
+  { name: 'Bullying', icon: Frown, color: 'text-yellow-500', phoneNumber: '0800 055 555' },
+  { name: 'Crime', icon: Siren, color: 'text-orange-500', phoneNumber: '10111' },
 ];
 
 interface IncidentReport {
@@ -130,13 +130,18 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="grid gap-4">
             {incidentTypes.map((type) => (
-              <div key={type.name} className="flex items-center gap-4 p-2 rounded-lg bg-muted/50">
-                <type.icon className={`h-6 w-6 ${type.color}`} />
-                <div className="grid gap-1">
-                  <p className="text-sm font-medium leading-none">
-                    {type.name}
-                  </p>
+              <div key={type.name} className="flex items-center justify-between gap-4 p-2 rounded-lg bg-muted/50">
+                <div className="flex items-center gap-4">
+                  <type.icon className={`h-6 w-6 ${type.color}`} />
+                  <div className="grid gap-1">
+                    <p className="text-sm font-medium leading-none">
+                      {type.name}
+                    </p>
+                  </div>
                 </div>
+                <a href={`tel:${type.phoneNumber}`} className="text-sm font-mono text-muted-foreground hover:text-foreground">
+                    {type.phoneNumber}
+                </a>
               </div>
             ))}
           </CardContent>
