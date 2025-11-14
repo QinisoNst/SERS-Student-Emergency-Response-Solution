@@ -19,8 +19,13 @@ import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/PageHeader';
 import type { IncidentType } from '@/lib/types';
 import { Label } from '@/components/ui/label';
-import { useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { useFirestore, useUser, useMemoFirebase, useDoc } from '@/firebase';
 import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+
+interface UserProfile {
+  contactName?: string;
+  studentNumber?: string;
+}
 
 const incidentTypes: { name: IncidentType, icon: React.ElementType, color: string }[] = [
   { name: 'Fire', icon: Flame, color: 'text-red-500' },
@@ -50,6 +55,13 @@ export default function ReportIncidentPage() {
     if (!firestore) return null;
     return collection(firestore, 'incidentReports');
   }, [firestore]);
+
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return doc(firestore, 'users', user.uid, 'profile', user.uid);
+  }, [user, firestore]);
+
+  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
 
   const form = useForm<ReportFormValues>({
     resolver: zodResolver(reportFormSchema),
@@ -89,10 +101,10 @@ export default function ReportIncidentPage() {
   };
 
   function onSubmit(data: ReportFormValues) {
-    if (!incidentReportsRef || !user) {
+    if (!incidentReportsRef || !user || !userProfile) {
         toast({
             title: 'Error',
-            description: 'You must be logged in to submit a report.',
+            description: 'You must be logged in and have a complete profile to submit a report.',
             variant: 'destructive',
         });
         return;
@@ -103,12 +115,13 @@ export default function ReportIncidentPage() {
       ...data,
       id: reportId,
       userId: user.uid,
+      userName: userProfile.contactName || 'Unknown User',
+      studentNumber: userProfile.studentNumber || '',
       reportDateTime: new Date().toISOString(),
       mediaUrls: [],
       status: 'New',
     };
     
-    // Create a new document reference with the generated ID
     const newDocRef = doc(incidentReportsRef, reportId);
 
     addDocumentNonBlocking(newDocRef, newReport);
@@ -218,7 +231,7 @@ export default function ReportIncidentPage() {
           </Card>
 
           <div className="flex justify-end">
-            <Button type="submit" size="lg">Submit Report</Button>
+            <Button type="submit" size="lg" disabled={!user || !userProfile}>Submit Report</Button>
           </div>
         </form>
       </Form>
