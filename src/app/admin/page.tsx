@@ -78,7 +78,7 @@ export default function AdminDashboardPage() {
                 <TableHead>Status</TableHead>
                 <TableHead className="hidden md:table-cell">Name</TableHead>
                 <TableHead className="hidden lg:table-cell">Student Number</TableHead>
-                <TableHead className="hidden md:table-cell">Reported</TableHead>
+                <TableHead>Reported</TableHead>
                 <TableHead>
                   Action
                 </TableHead>
@@ -112,7 +112,7 @@ export default function AdminDashboardPage() {
                   <TableCell className="hidden lg:table-cell">
                     {incident.studentNumber}
                   </TableCell>
-                  <TableCell className="hidden md:table-cell">
+                  <TableCell>
                     {formatDistanceToNow(new Date(incident.reportDateTime), { addSuffix: true })}
                   </TableCell>
                   <TableCell>
