@@ -41,7 +41,7 @@ import { useDoc, useFirestore, useUser, useMemoFirebase, useAuth } from '@/fireb
 
 const navItems = [
   { href: '/admin', icon: Siren, label: 'Incidents' },
-  { href: '#', icon: Users, label: 'Users' },
+  { href: '/admin/users', icon: Users, label: 'Users' },
   { href: '#', icon: Settings, label: 'Settings' },
 ];
 
@@ -71,6 +71,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   const handleLogout = async () => {
     await signOut(auth);
+    router.push('/');
   };
 
 
