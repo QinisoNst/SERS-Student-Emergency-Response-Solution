@@ -2,9 +2,18 @@
 
 import { collection, query, where } from 'firebase/firestore';
 import { formatDistanceToNow } from 'date-fns';
+import { MoreHorizontal } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageHeader } from '@/components/PageHeader';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
@@ -49,18 +58,21 @@ export default function AllReportsPage() {
                 <TableHead>Type</TableHead>
                 <TableHead>Location</TableHead>
                 <TableHead className="hidden md:table-cell">Reported</TableHead>
-                <TableHead className="text-right">Status</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>
+                  <span className="sr-only">Actions</span>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center">Loading your reports...</TableCell>
+                  <TableCell colSpan={5} className="text-center">Loading your reports...</TableCell>
                 </TableRow>
               )}
               {!isLoading && incidents?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center">You have not reported any incidents.</TableCell>
+                  <TableCell colSpan={5} className="text-center">You have not reported any incidents.</TableCell>
                 </TableRow>
               )}
               {!isLoading && incidents?.map((incident) => (
@@ -72,13 +84,27 @@ export default function AllReportsPage() {
                   <TableCell className="hidden md:table-cell">
                     {formatDistanceToNow(new Date(incident.reportDateTime), { addSuffix: true })}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell>
                     <Badge 
                       variant={incident.status === 'New' ? 'destructive' : incident.status === 'Acknowledged' ? 'default' : 'secondary'}
                       className="capitalize"
                     >
                       {incident.status.toLowerCase()}
                     </Badge>
+                  </TableCell>
+                   <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Toggle menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem>View Report</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
