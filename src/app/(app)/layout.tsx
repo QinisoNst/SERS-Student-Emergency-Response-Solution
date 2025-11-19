@@ -2,6 +2,7 @@
 import { AppLayout } from '@/components/AppLayout';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { FirebaseClientProvider } from '@/firebase';
+import { Suspense } from 'react';
 
 export default function AuthenticatedLayout({
   children,
@@ -11,7 +12,9 @@ export default function AuthenticatedLayout({
   return (
     <FirebaseClientProvider>
       <SidebarProvider>
-        <AppLayout>{children}</AppLayout>
+        <AppLayout>
+          <Suspense>{children}</Suspense>
+        </AppLayout>
       </SidebarProvider>
     </FirebaseClientProvider>
   );
