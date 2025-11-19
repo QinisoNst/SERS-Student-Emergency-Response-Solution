@@ -11,11 +11,11 @@ export default function AuthenticatedLayout({
 }) {
   return (
     <FirebaseClientProvider>
-      <Suspense>
         <SidebarProvider>
-          <AppLayout>{children}</AppLayout>
+          <Suspense>
+            <AppLayout>{children}</AppLayout>
+          </Suspense>
         </SidebarProvider>
-      </Suspense>
     </FirebaseClientProvider>
   );
 }

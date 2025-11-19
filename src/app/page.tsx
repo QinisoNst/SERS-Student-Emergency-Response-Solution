@@ -40,7 +40,7 @@ export default function LoginPage() {
       } else if (userProfile.userType === 'student') {
         // Redirect to profile setup if phone number is missing
         if (!userProfile.contactPhoneNumber) {
-          router.push('/profile?setup=true');
+          router.push('/dashboard/profile?setup=true');
         } else {
           router.push('/dashboard');
         }

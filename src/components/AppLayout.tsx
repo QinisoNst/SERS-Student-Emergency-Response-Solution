@@ -41,9 +41,9 @@ import { useDoc, useFirestore, useUser, useMemoFirebase, useAuth } from '@/fireb
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/report', icon: AlertTriangle, label: 'Report Incident' },
-  { href: '/reports', icon: ListChecks, label: 'My Reports' },
-  { href: '/profile', icon: User, label: 'Profile' },
+  { href: '/dashboard/report', icon: AlertTriangle, label: 'Report Incident' },
+  { href: '/dashboard/reports', icon: ListChecks, label: 'My Reports' },
+  { href: '/dashboard/profile', icon: User, label: 'Profile' },
 ];
 
 interface UserProfile {

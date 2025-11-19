@@ -85,7 +85,7 @@ export default function AllReportsPage() {
                   </TableCell>
                    <TableCell className="text-right">
                     <Button asChild variant="outline" size="sm">
-                      <Link href={`/reports/${incident.id}`}>View</Link>
+                      <Link href={`/dashboard/reports/${incident.id}`}>View</Link>
                     </Button>
                   </TableCell>
                 </TableRow>

@@ -75,7 +75,7 @@ export default function DashboardPage() {
               If you are in immediate danger, please contact emergency services first. Then, report the incident here to alert campus staff.
             </p>
             <Button asChild size="lg" variant="secondary">
-              <Link href="/report">
+              <Link href="/dashboard/report">
                 Report an Incident <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -93,7 +93,7 @@ export default function DashboardPage() {
               </CardDescription>
             </div>
             <Button asChild size="sm" className="ml-auto gap-1">
-              <Link href="/reports">
+              <Link href="/dashboard/reports">
                 View All
                 <ArrowRight className="h-4 w-4" />
               </Link>
