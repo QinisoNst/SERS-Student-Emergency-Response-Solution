@@ -1,6 +1,7 @@
+
 {
   "hosting": {
-    "public": "public",
+    "source": "app/.next",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -14,7 +15,7 @@
     ]
   },
   "functions": {
-    "source": ".",
+    "source": "functions",
     "runtime": "nodejs18"
   }
 }
