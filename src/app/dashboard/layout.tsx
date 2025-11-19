@@ -13,9 +13,4 @@ export default function AuthenticatedLayout({
     <FirebaseClientProvider>
         <SidebarProvider>
           <Suspense>
-            <AppLayout>{children}</AppLayout>
-          </Suspense>
-        </SidebarProvider>
-    </FirebaseClientProvider>
-  );
-}
+            
