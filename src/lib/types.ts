@@ -11,3 +11,4 @@ export type Incident = {
     name: string;
     id: string;
   };
+};
