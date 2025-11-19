@@ -12,6 +12,14 @@ import { PageHeader } from '@/components/PageHeader';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 
+// Function required for 'output: "export"' with dynamic routes
+export async function generateStaticParams() {
+  // Since reports are dynamic, we cannot know the IDs at build time.
+  // We return an empty array to satisfy the build, but this means
+  // no report detail pages will be pre-rendered.
+  return [];
+}
+
 interface IncidentReport {
   id: string;
   incidentType: string;
