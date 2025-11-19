@@ -1,7 +1,7 @@
 'use client';
 import { AppLayout } from '@/components/AppLayout';
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { FirebaseClientProvider } from '@/firebase';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Suspense } from 'react';
 
 export default function AuthenticatedLayout({
