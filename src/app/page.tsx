@@ -27,9 +27,9 @@ export default function LoginPage() {
   const { toast } = useToast();
 
   const userProfileRef = useMemoFirebase(() => {
-    if (!auth.currentUser || !firestore) return null;
+    if (!auth?.currentUser || !firestore) return null;
     return doc(firestore, 'users', auth.currentUser.uid, 'profile', auth.currentUser.uid);
-  }, [auth.currentUser, firestore]);
+  }, [auth?.currentUser, firestore]);
   
   const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
 
